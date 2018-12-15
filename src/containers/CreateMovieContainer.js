@@ -3,6 +3,12 @@ import { Form } from 'semantic-ui-react';
 import DropdownMultiSelect from '../components/DropdownMultiSelect';
 import DropdownSingleSelect from '../components/DropdownSingleSelect';
 import Dropzone from '../components/Dropzone';
+import Modal from 'react-responsive-modal';
+import CreateActorContainer from './CreateActorContainer';
+import { uploadPoster } from '../utils/fetchDetails';
+import axios from 'axios'
+
+
 export default class CreateMovieContainer extends Component {
   constructor(props) {
     super(props);
@@ -21,6 +27,10 @@ export default class CreateMovieContainer extends Component {
     this.updateActors = this.updateActors.bind(this);
     this.updateProducer = this.updateProducer.bind(this);
     this.updatePlot = this.updatePlot.bind(this);
+    this.onClickModalCreateActorClose = this.onClickModalCreateActorClose.bind(this)
+    this.openCreateActorModal = this.openCreateActorModal.bind(this)
+    this.createActorRequest = this.createActorRequest.bind(this)
+    this.updateInputImage = this.updateInputImage.bind(this)
   }
   submitForm() {
     console.log("submit ....")
@@ -37,8 +47,55 @@ export default class CreateMovieContainer extends Component {
     ) ? false : true;
     return toReturn;
   }
-  updateSelectedImage(file) {
-    this.setState({ poster: file, showSuccessMsg: true });
+  // updateSelectedImage() {
+  //   let file = this.state.poster;
+  //   if (file && file.name) {
+  //     console.log("submit successfully");
+      
+  //     const fd = new FormData();
+  //     fd.append('myImage', file);
+  //     const config = {
+  //       headers: {
+  //         'content-type': 'multipart/form-data'
+  //       }
+  //     };
+  //     // uploadPoster(fd, (res) => {
+  //     //   console.log("response:::" + res);
+  //     //   this.setState({ poster: res, showSuccessMsg: true });
+  //     // })
+  //     axios.post("http://localhost:3000/upload", fd, config)
+  //       .then((response) => {
+  //         alert("The file is successfully uploaded");
+  //       }).catch((error) => {
+  //       });
+  //   } else {
+  //     alert("select one image");
+  //     this.setState({
+  //       poster: {}
+  //     });
+  //   }
+
+
+  // }
+  // updateSelectedImage(file) {
+  //   this.setState({ poster: file, showSuccessMsg: true });
+
+  // }
+
+  updateSelectedImage(e) {
+
+    e.preventDefault();
+    const formData = new FormData();
+    formData.append('myImage',this.state.poster);
+    const config = {
+        headers: {
+            'content-type': 'multipart/form-data'
+        }
+    };
+    axios.post("http://localhost:3000/upload",formData,config).then((response) => {
+            alert("The file is successfully uploaded");
+        }).catch((error) => {
+    });
 
   }
   updateMovieName(temp) {
@@ -63,10 +120,18 @@ export default class CreateMovieContainer extends Component {
   submitCreateMovie() {
 
   }
-  openCreateActorModal(){
-    this.setState({openCreateActor: true})
+  openCreateActorModal() {
+    this.setState({ openCreateActor: true })
   }
-
+  onClickModalCreateActorClose() {
+    this.setState({ openCreateActor: false })
+  }
+  createActorRequest(temp) {
+    console.log("new actor:" + temp)
+  }
+  updateInputImage(e) {
+    this.setState({ poster: e.target.files[0] });
+  }
   render() {
 
     const actorOptions = [], producerOptions = [];
@@ -126,7 +191,20 @@ export default class CreateMovieContainer extends Component {
                 onChange={(e) => this.updatePlot(e.target.value)}></textarea>
             </div>
           </div>
-          <Dropzone updateSelectedImage={this.updateSelectedImage} /><br />
+          <div className="row">
+            {/* <Dropzone updateSelectedImage={this.updateSelectedImage} /> */}
+            <div className="col-6">
+              <label style={{ paddingLeft: "20px", color: "red" }}>Choose file to upload</label>
+              <input type="file" accept="image/png, image/jpeg"  name="myImage" onChange={this.updateInputImage} />
+            </div>
+            <div className="col-6" style={{ paddingTop: "33px" }}>
+              <button className='btn borderGray' onClick={this.updateSelectedImage}>
+                Upload Image
+              </button>
+            </div>
+          </div>
+
+          <br />
           {this.state.showSuccessMsg && <div className="row">
             <div className="col-12">
               <i className="fa fa-check-circle" style={{ color: "green" }}></i>
@@ -140,6 +218,12 @@ export default class CreateMovieContainer extends Component {
             <div className="col-8">
             </div>
           </div>
+          {this.state.openCreateActor &&
+            <Modal open={this.state.openCreateActor || false} onClose={this.onClickModalCreateActorClose} center >
+              <CreateActorContainer createActorRequest={this.createActorRequest()} />
+            </Modal>
+
+          }
         </Form>
       </div>
     )

@@ -78,6 +78,7 @@ export default class Dropzone extends Component {
           acceptedFiles={['image/jpeg', 'image/jpg', 'image/png', 'image/bmp']}
           showPreviews={true}
           maxFileSize={5000000}
+          name = 'myImage'
           onClose={this.handleClose.bind(this)}
         />
         {this.state.showSpinner && <SpinnerComponent message="Loading image..." />}

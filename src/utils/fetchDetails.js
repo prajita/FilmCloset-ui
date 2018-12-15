@@ -46,7 +46,7 @@ export const fetchProducersApi = async (callback) => {
 }
 export const uploadPoster = async (req,callback) => {
     
-    await fetch("http://localhost:3000/api/movies/image/",
+    await fetch("http://localhost:3000/upload",
         {
             method: "POST",
             cache: "no-cache",
