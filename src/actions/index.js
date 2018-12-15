@@ -1,4 +1,4 @@
-import React from 'react';
+
 import {
     REQUEST_MOVIE, OPEN_ADD_MOVIE_MODAL, CLOSE_ADD_MOVIE_MODAL, SET_ACTORS, SET_PRODUCERS,
     REQUEST_UPLOAD_POSTER
@@ -7,7 +7,6 @@ import {
     fetchActorsApi, fetchProducersApi
 } from '../utils/fetchDetails';
 import Promise from 'promise'; // to use Promises
-import fetch from 'isomorphic-fetch';
 
 
 export const requestMovie = (movieName) => {
@@ -31,18 +30,18 @@ export const setProducers = (producers) => {
 }
 
 
-export const uploadPoster = () => {
-    return function (dispatch) {
-        dispatch({
-            type: REQUEST_UPLOAD_POSTER,
-            loader: true
-        });
-        // fetchUploadPosterApi(movieName, (movieDetails) => {
-        //                 dispatch(setMovieDetails(movieDetails.id));
-        //             });
+// export const uploadPoster = () => {
+//     return function (dispatch) {
+//         dispatch({
+//             type: REQUEST_UPLOAD_POSTER,
+//             loader: true
+//         });
+//         // fetchUploadPosterApi(movieName, (movieDetails) => {
+//         //                 dispatch(setMovieDetails(movieDetails.id));
+//         //             });
 
-    }
-}
+//     }
+// }
 
 
 export const openAddMovieModal = (movieName) => {
