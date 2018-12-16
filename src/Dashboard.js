@@ -9,13 +9,23 @@ import Modal from 'react-responsive-modal';
 import { bindActionCreators } from 'redux';
 import { connect } from 'react-redux';
 import PropTypes from 'prop-types';
-import { openAddMovieModal, closeAddMovieModal } from './actions';
+import SpinnerComponent from './components/SpinnerComponent'
+import {
+  requestAllMovie, openAddMovieModal,
+  closeAddMovieModal, createMovieAndActor,
+  createMovie
+} from './actions';
+
+import { createMovieApi, UpdateAllActorApi } from './utils/fetchDetails'
+import * as Constants from './Constants';
+
 
 class Dashboard extends Component {
   constructor(props) {
     super(props);
     this.onClickAddMovie = this.onClickAddMovie.bind(this);
     this.onClickModalClose = this.onClickModalClose.bind(this);
+    this.submitCreateMovie = this.submitCreateMovie.bind(this);
   }
   onClickAddMovie() {
     this.props.openAddMovieModal();
@@ -23,7 +33,29 @@ class Dashboard extends Component {
   onClickModalClose() {
     this.props.closeAddMovieModal();
   }
+  submitCreateMovie(temp) {
+
+    console.log("create new movie", temp);
+    //createMovie(temp, { listOfActors: temp.actors, movie: temp.name });
+    createMovieApi(temp, (res) => {
+      UpdateAllActorApi({ listOfActors: temp.actors, movie: temp.name }, (resp) => {
+        console.log("successfully created movie");
+        this.props.closeAddMovieModal();
+        window.location.reload();
+
+      })
+    })
+  }
+  componentWillMount() {
+    this.props.requestAllMovie();
+  }
+  componentWillUpdate(nextProps) {
+    if (nextProps.allMovieList.length !== this.props.allMovieList.length) {
+      return true
+    }
+  }
   render() {
+
     return (
       <div className="App">
         <React.Fragment>
@@ -33,7 +65,7 @@ class Dashboard extends Component {
               <div className="row header-style" >
                 <div className="col-2"><img src={img} className="styleImg" /></div>
                 <div className="col-10" style={{ paddingRight: "15%" }}>
-                  <h1>Welcome !! choose your favourite movie !</h1>
+                  <h1>Welcome to your favourite movie site !</h1>
                   <div className="flex-container ">
                   </div>
                 </div>
@@ -52,14 +84,18 @@ class Dashboard extends Component {
             </div>
 
             <br /><br />
-            <Movies />
-            {/* {this.props.loading &&
-                        <SpinnerComponent message="Loading collections..." />
-                    } */}
+
+            <Movies list={this.props.allMovieList} />
+            {this.props.loader &&
+              <SpinnerComponent message="Loading collections..." />
+            }
           </div>
+
           {this.props.addMovieModal &&
             <Modal open={this.props.addMovieModal || false} onClose={this.onClickModalClose} center >
-              <CreateMovieContainer actorOptions={this.props.actorsList} producerOptions={this.props.producersList}/>
+              <CreateMovieContainer actorOptions={this.props.actorsList}
+                producerOptions={this.props.producersList}
+                submitCreateMovie={this.submitCreateMovie} />
             </Modal>}
         </React.Fragment>
       </div>
@@ -73,6 +109,9 @@ Dashboard.propTypes = {
   closeAddMovieModal: PropTypes.func,
   actorsList: PropTypes.array,
   producersList: PropTypes.array,
+  requestAllMovie: PropTypes.func,
+  loader: PropTypes.bool,
+  allMovieList: PropTypes.array
 
 };
 
@@ -80,7 +119,9 @@ const mapStateToProps = (state) => {
   return {
     addMovieModal: state.addMovieModal,
     actorsList: state.actorsList,
-    producersList: state.producersList
+    producersList: state.producersList,
+    loader: state.loader,
+    allMovieList: state.allMovieList
   };
 }
 const mapDispatchToProps = (dispatch) => {
@@ -88,7 +129,8 @@ const mapDispatchToProps = (dispatch) => {
     bindActionCreators(
       {
         openAddMovieModal,
-        closeAddMovieModal
+        closeAddMovieModal,
+        requestAllMovie
 
       }, dispatch
     )

@@ -2,11 +2,13 @@ import React, { Component } from 'react';
 import { Form } from 'semantic-ui-react';
 import DropdownMultiSelect from '../components/DropdownMultiSelect';
 import DropdownSingleSelect from '../components/DropdownSingleSelect';
-import Dropzone from '../components/Dropzone';
+//import Dropzone from '../components/Dropzone';
 import Modal from 'react-responsive-modal';
 import CreateActorContainer from './CreateActorContainer';
-import { uploadPoster } from '../utils/fetchDetails';
-import axios from 'axios'
+// import { uploadPoster } from '../utils/fetchDetails';
+import axios from 'axios';
+import * as Constants from '../Constants';
+import Spinner from '../components/SpinnerComponent';
 
 
 export default class CreateMovieContainer extends Component {
@@ -20,63 +22,37 @@ export default class CreateMovieContainer extends Component {
       plot: "",
       yearOfRelease: "",
       showSuccessMsg: false,
-      openCreateActor: false
+      openCreateActor: false,
+      updatedPosterName: "",
+      newActorsList: [],
+      loader: false
     }
     this.updateSelectedImage = this.updateSelectedImage.bind(this);
     this.disableSubmit = this.disableSubmit.bind(this);
     this.updateActors = this.updateActors.bind(this);
     this.updateProducer = this.updateProducer.bind(this);
     this.updatePlot = this.updatePlot.bind(this);
-    this.onClickModalCreateActorClose = this.onClickModalCreateActorClose.bind(this)
-    this.openCreateActorModal = this.openCreateActorModal.bind(this)
-    this.createActorRequest = this.createActorRequest.bind(this)
-    this.updateInputImage = this.updateInputImage.bind(this)
+    this.onClickModalCreateActorClose = this.onClickModalCreateActorClose.bind(this);
+    this.openCreateActorModal = this.openCreateActorModal.bind(this);
+    // this.createActorRequest = this.createActorRequest.bind(this);
+    this.updateInputImage = this.updateInputImage.bind(this);
+    this.submitCreateMovie = this.submitCreateMovie.bind(this);
   }
-  submitForm() {
-    console.log("submit ....")
-  }
+
   disableSubmit() {
     let toReturn = false;
-    toReturn = (this.state.poster.name &&
+    toReturn = (this.state.updatedPosterName &&
       this.state.title &&
       this.state.actors.length > 0 &&
-      this.state.producer.length === 1 &&
+      this.state.producer &&
       this.state.plot &&
       this.state.yearOfRelease &&
       this.state.showSuccessMsg
     ) ? false : true;
     return toReturn;
   }
-  // updateSelectedImage() {
-  //   let file = this.state.poster;
-  //   if (file && file.name) {
-  //     console.log("submit successfully");
-      
-  //     const fd = new FormData();
-  //     fd.append('myImage', file);
-  //     const config = {
-  //       headers: {
-  //         'content-type': 'multipart/form-data'
-  //       }
-  //     };
-  //     // uploadPoster(fd, (res) => {
-  //     //   console.log("response:::" + res);
-  //     //   this.setState({ poster: res, showSuccessMsg: true });
-  //     // })
-  //     axios.post("http://localhost:3000/upload", fd, config)
-  //       .then((response) => {
-  //         alert("The file is successfully uploaded");
-  //       }).catch((error) => {
-  //       });
-  //   } else {
-  //     alert("select one image");
-  //     this.setState({
-  //       poster: {}
-  //     });
-  //   }
 
 
-  // }
   // updateSelectedImage(file) {
   //   this.setState({ poster: file, showSuccessMsg: true });
 
@@ -86,15 +62,16 @@ export default class CreateMovieContainer extends Component {
 
     e.preventDefault();
     const formData = new FormData();
-    formData.append('myImage',this.state.poster);
+    formData.append('myImage', this.state.poster);
     const config = {
-        headers: {
-            'content-type': 'multipart/form-data'
-        }
+      headers: {
+        'content-type': 'multipart/form-data'
+      }
     };
-    axios.post("http://localhost:3000/upload",formData,config).then((response) => {
-            alert("The file is successfully uploaded");
-        }).catch((error) => {
+    axios.post(`${Constants.URL}/upload`, formData, config).then((response) => {
+      this.setState({ updatedPosterName: this.state.poster.name, showSuccessMsg: true })
+      alert("The file is successfully uploaded");
+    }).catch((error) => {
     });
 
   }
@@ -110,16 +87,31 @@ export default class CreateMovieContainer extends Component {
     this.setState({ actors: listActorNames })
   }
   updateProducer(objProducer) {
-    console.log('producer ::', objProducer);
-    let producerName = objProducer.value[0];
-    this.setState({ producer: producerName })
+    console.log('producer ::', objProducer.value);
+    let producerArr = [];
+    producerArr.push(objProducer.value);
+    this.setState({ producer: producerArr})
   }
   updatePlot(temp) {
     this.setState({ plot: temp });
   }
   submitCreateMovie() {
 
+    let obj =
+      {
+        "name": this.state.title,
+        "yearOfRelease": parseInt(this.state.yearOfRelease),
+        "poster": `${Constants.URL}/${this.state.updatedPosterName}`,
+        "actors": this.state.actors,
+        "plot": this.state.plot,
+        "producers": this.state.producer
+      }
+    console.log("input to create movie api ::::" + JSON.stringify(obj));
+
+    this.props.submitCreateMovie(obj);
+
   }
+
   openCreateActorModal() {
     this.setState({ openCreateActor: true })
   }
@@ -127,7 +119,9 @@ export default class CreateMovieContainer extends Component {
     this.setState({ openCreateActor: false })
   }
   createActorRequest(temp) {
-    console.log("new actor:" + temp)
+    console.log("new actor:" + temp);
+    this.setState({ openCreateActor: false })
+
   }
   updateInputImage(e) {
     this.setState({ poster: e.target.files[0] });
@@ -141,13 +135,14 @@ export default class CreateMovieContainer extends Component {
     return (
       <div>
         <h2>Add new movie</h2>
-        <Form onSubmit={this.submitForm} id="form1" style={{ width: "600px" }} >
+        <Form id="form1" style={{ width: "600px" }} >
           <div className="row">
             <div className="col-3">
               <label >Movie Name</label>
             </div>
             <div className="col-9">
-              <input type="text" id="title" placeholder="enter movie name.." onChange={(e) => this.updateMovieName(e.target.value)} />
+              <input type="text" id="title" placeholder="enter movie name.."
+                onChange={(e) => this.updateMovieName(e.target.value)} />
             </div>
           </div>
           <div className="row">
@@ -155,7 +150,8 @@ export default class CreateMovieContainer extends Component {
               <label >year of release</label>
             </div>
             <div className="col-9">
-              <input type="text" name="yor" placeholder="enter movie release year.." onChange={(e) => this.updateYearOfRelease(e.target.value)} />
+              <input type="text" name="yor" placeholder="enter movie release year.."
+                onChange={(e) => this.updateYearOfRelease(e.target.value)} />
             </div>
           </div>
           <div className="row">
@@ -163,7 +159,8 @@ export default class CreateMovieContainer extends Component {
               <label >Actors</label>
             </div>
             <div className="col-6">
-              <DropdownMultiSelect actorOptions={actorOptions} updateActors={this.updateActors} defaultValue={this.state.actors} label="Actors" />
+              <DropdownMultiSelect actorOptions={actorOptions} updateActors={this.updateActors}
+                defaultValue={this.state.actors} label="Actors" />
             </div>
             {/* <AddActor/> */}
             <div className="col-3">
@@ -175,7 +172,8 @@ export default class CreateMovieContainer extends Component {
               <label >Producer</label>
             </div>
             <div className="col-6">
-              <DropdownSingleSelect producerOptions={producerOptions} updateProducer={this.updateProducer} label="Producers" defaultValue={this.state.producer} />
+              <DropdownSingleSelect producerOptions={producerOptions} updateProducer={this.updateProducer}
+                label="Producers" defaultValue={this.state.producer} />
             </div>
             {/* <AddProducer/> */}
             <div className="col-3">
@@ -195,7 +193,7 @@ export default class CreateMovieContainer extends Component {
             {/* <Dropzone updateSelectedImage={this.updateSelectedImage} /> */}
             <div className="col-6">
               <label style={{ paddingLeft: "20px", color: "red" }}>Choose file to upload</label>
-              <input type="file" accept="image/png, image/jpeg"  name="myImage" onChange={this.updateInputImage} />
+              <input type="file" accept="image/png, image/jpeg" name="myImage" onChange={this.updateInputImage} />
             </div>
             <div className="col-6" style={{ paddingTop: "33px" }}>
               <button className='btn borderGray' onClick={this.updateSelectedImage}>
@@ -213,14 +211,15 @@ export default class CreateMovieContainer extends Component {
           </div>}
           <div className="row">
             <div className="col-4" >
-              <button className='btn buttonSearch borderBlack' disabled={this.disableSubmit()} onClick={this.submitCreateMovie} type="submit"> Create Movie</button>
+              <button className='btn buttonSearch borderBlack' disabled={this.disableSubmit()}
+                onClick={this.submitCreateMovie} type="submit"> Create Movie</button>
             </div>
             <div className="col-8">
             </div>
           </div>
           {this.state.openCreateActor &&
             <Modal open={this.state.openCreateActor || false} onClose={this.onClickModalCreateActorClose} center >
-              <CreateActorContainer createActorRequest={this.createActorRequest()} />
+              <CreateActorContainer createActorRequest={(obj) => this.createActorRequest(obj)} />
             </Modal>
 
           }

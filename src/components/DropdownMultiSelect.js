@@ -15,7 +15,7 @@ class DropdownMultiSelect extends Component {
       <Dropdown placeholder='select actor' fluid multiple selection
         options={this.props.actorOptions}
         onChange={(e, { value }) => this.props.updateActors({ value })}
-        defaultValue={actorOptionsDefault} />
+         />
     )
   }
 

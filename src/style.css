@@ -61,7 +61,16 @@ code {
   float: left;
   border-radius: 50%
 }
-
+.cardPadding{
+  padding-bottom: 5% !important
+}
+.imageBorder{
+  padding: 2%;
+}
+.cardImageStyle{
+  max-width: 280px;
+  max-height: 167px;
+}
 .BckYellow{
   background-color: #FFBF00;
 }

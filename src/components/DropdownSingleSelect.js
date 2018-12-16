@@ -15,7 +15,7 @@ class DropdownSingleSelect extends Component {
       <Dropdown placeholder='select producer' fluid search selection
         options={this.props.producerOptions}
         onChange={(e, { value }) => this.props.updateProducer({ value })}
-        defaultValue={producerOptionsDefault} />
+         />
     )
   }
 }

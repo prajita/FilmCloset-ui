@@ -1,18 +1,20 @@
 import React, { Component } from 'react';
 import { Form } from 'semantic-ui-react';
+import Spinner from '../components/SpinnerComponent';
+import { createActor } from '../utils/fetchDetails'
 
 export default class CreateActorContainer extends Component {
     constructor(props) {
         super(props);
         this.state = {
             name: "",
-            sex: "",
+            sex: "Male",
             isProducer: false,
             dob: "",
-            role: ""
+            loader: false
         }
         this.disableSubmit = this.disableSubmit.bind(this);
-        this.subnitCreateActor = this.subnitCreateActor.bind(this);
+        //this.submitCreateActor = this.submitCreateActor.bind(this);
     }
     setGender(temp) {
         this.setState({ sex: temp });
@@ -23,22 +25,27 @@ export default class CreateActorContainer extends Component {
     updateDob(temp) {
         this.setState({ dob: temp })
     }
-    updateRole(temp) {
-        this.setState({ role: temp })
-    }
+    
     disableSubmit() {
-        let toReturn = (this.state.name && this.state.sex && this.state.isProducer && this.state.role && this.state.dob) ? false : true;
+        let toReturn = (this.state.name && this.state.sex  && this.state.dob) ? false : true;
         return toReturn;
     }
-    subnitCreateActor() {
+    submitCreateActor() {
+        this.setState({ loader: true })
         let obj = {
             name: this.state.name,
             sex: this.state.sex,
             isProducer: this.state.isProducer,
             dob: this.state.dob,
-            role: this.state.role
+            bio: []
+
         }
-        this.props.createActorRequest(obj);
+        //api call
+        createActor(obj, (res) => {
+            this.setState({ loader: false });
+            this.props.createActorRequest(obj);
+        })
+
     }
 
     render() {
@@ -67,15 +74,6 @@ export default class CreateActorContainer extends Component {
                                 onChange={(e) => this.updateDob(e.target.value)} />
                         </div>
                     </div>
-                    <div className="row">
-                        <div className="col-3">
-                            <label >Role</label>
-                        </div>
-                        <div className="col-9">
-                            <input type="text" id="title" placeholder="enter role in movie.."
-                                onChange={(e) => this.updateRole(e.target.value)} />
-                        </div>
-                    </div>
 
                     <div className="row">
                         <div className="col-3">
@@ -94,7 +92,7 @@ export default class CreateActorContainer extends Component {
                     <div className="row">
                         <div className="col-4" >
                             <button className='btn buttonSearch borderBlack' disabled={this.disableSubmit()}
-                                onClick={() => this.subnitCreateActor()}
+                                onClick={() => this.submitCreateActor()}
                                 type="submit"> Create Actor</button>
                         </div>
                         <div className="col-8">
