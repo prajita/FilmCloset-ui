@@ -2,8 +2,8 @@ import initialState from './initialState';
 
 import {
     REQUEST_ALL_MOVIE, OPEN_ADD_MOVIE_MODAL, CLOSE_ADD_MOVIE_MODAL, SET_ACTORS, SET_PRODUCERS,
-    REQUEST_UPLOAD_POSTER, REQUEST_ALL_MOVIE_SUCCESS,UPDATE_LOADER,UPDATE_CREATE_MOVIE_MODAL,
-    REQUEST_CREATE_MOVIE,CREATE_MOVIE_SUCCESS
+    REQUEST_UPLOAD_POSTER, REQUEST_ALL_MOVIE_SUCCESS, UPDATE_LOADER, UPDATE_CREATE_MOVIE_MODAL,UPDATE_EDIT_MOVIE_MODAL,
+    REQUEST_CREATE_MOVIE, CREATE_MOVIE_SUCCESS
 } from '../actions/actionTypes';
 
 const rootReducer = (state = initialState, action) => {
@@ -14,7 +14,7 @@ const rootReducer = (state = initialState, action) => {
                 ...state,
                 loader: action.loader
             };
-       
+
         case REQUEST_ALL_MOVIE_SUCCESS:
             return {
                 ...state,
@@ -25,9 +25,15 @@ const rootReducer = (state = initialState, action) => {
         case UPDATE_CREATE_MOVIE_MODAL:
             return {
                 ...state,
-                addMovieModal: action.addMovieModal
-            };
+                addMovieModal: action.addMovieModal,
+                editMovieModal: action.editMovieModal
 
+            };
+        case UPDATE_EDIT_MOVIE_MODAL:
+            return {
+                ...state,
+                editMovieModal: action.editMovieModal
+            };
         case SET_ACTORS:
             return {
                 ...state,

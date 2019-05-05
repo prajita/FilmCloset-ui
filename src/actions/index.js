@@ -1,7 +1,7 @@
 
 import {
     REQUEST_ALL_MOVIE, OPEN_ADD_MOVIE_MODAL, CLOSE_ADD_MOVIE_MODAL, SET_ACTORS, SET_PRODUCERS,
-    REQUEST_UPLOAD_POSTER, REQUEST_CREATE_MOVIE, REQUEST_ALL_MOVIE_SUCCESS, CREATE_MOVIE_SUCCESS,
+    REQUEST_UPLOAD_POSTER, REQUEST_CREATE_MOVIE, REQUEST_ALL_MOVIE_SUCCESS, CREATE_MOVIE_SUCCESS,UPDATE_EDIT_MOVIE_MODAL,
     UPDATE_CREATE_MOVIE_MODAL, UPDATE_LOADER
 } from './actionTypes';
 import {
@@ -41,7 +41,7 @@ export const requestAllMovie = () => {
         })
     }
 }
-export const openAddMovieModal = (movieName) => {
+export const openAddMovieModal = () => {
     return function (dispatch) {
         Promise.all([
             fetchActorsApi((actors) => {
@@ -60,11 +60,31 @@ export const openAddMovieModal = (movieName) => {
 
     }
 }
+export const openEditMovieModal = () => {
+    return function (dispatch) {
+        Promise.all([
+            fetchActorsApi((actors) => {
+                dispatch(setActors(actors));
+            }),
+            fetchProducersApi((producers) => {
+                dispatch(setProducers(producers));
+            })
+        ]).then(() => {
+            dispatch({
+                type: UPDATE_EDIT_MOVIE_MODAL,
+                editMovieModal: true
+
+            });
+        });
+
+    }
+}
 export const closeAddMovieModal = (movieName) => {
     return function (dispatch) {
         dispatch({
             type: UPDATE_CREATE_MOVIE_MODAL,
-            addMovieModal: false
+            addMovieModal: false,
+            editMovieModal:false
         });
 
     }

@@ -1,9 +1,9 @@
 import React, { Component } from 'react';
 import { Form } from 'semantic-ui-react';
 import Spinner from '../components/SpinnerComponent';
-import { createActor } from '../utils/fetchDetails'
+import { createActor,createProducer } from '../utils/fetchDetails'
 
-export default class CreateActorContainer extends Component {
+export default class CreateActorProducerContainer extends Component {
     constructor(props) {
         super(props);
         this.state = {
@@ -14,7 +14,6 @@ export default class CreateActorContainer extends Component {
             loader: false
         }
         this.disableSubmit = this.disableSubmit.bind(this);
-        //this.submitCreateActor = this.submitCreateActor.bind(this);
     }
     setGender(temp) {
         this.setState({ sex: temp });
@@ -25,26 +24,42 @@ export default class CreateActorContainer extends Component {
     updateDob(temp) {
         this.setState({ dob: temp })
     }
-    
+
     disableSubmit() {
-        let toReturn = (this.state.name && this.state.sex  && this.state.dob) ? false : true;
+        let toReturn = (this.state.name && this.state.sex && this.state.dob) ? false : true;
         return toReturn;
     }
-    submitCreateActor() {
+    submitCreateActorProducer() {
         this.setState({ loader: true })
-        let obj = {
-            name: this.state.name,
-            sex: this.state.sex,
-            isProducer: this.state.isProducer,
-            dob: this.state.dob,
-            bio: []
+        if (this.props.msg === 'Create Actor') {
+            let obj = {
+                name: this.state.name,
+                sex: this.state.sex,
+                isProducer: this.state.isProducer,
+                dob: this.state.dob,
+                bio: []
 
+            }
+            //api call
+            createActor(obj, (res) => {
+                this.setState({ loader: false });
+                this.props.createActorRequest(obj);
+            })
+        }else{
+            let obj = {
+                name: this.state.name,
+                sex: this.state.sex,
+                isProducer: true,
+                dob: this.state.dob,
+                bio: []
+
+            }
+            //api call
+            createProducer(obj, (res) => {
+                this.setState({ loader: false });
+                this.props.createProducerRequest(obj);
+            })
         }
-        //api call
-        createActor(obj, (res) => {
-            this.setState({ loader: false });
-            this.props.createActorRequest(obj);
-        })
 
     }
 
@@ -92,8 +107,8 @@ export default class CreateActorContainer extends Component {
                     <div className="row">
                         <div className="col-4" >
                             <button className='btn buttonSearch borderBlack' disabled={this.disableSubmit()}
-                                onClick={() => this.submitCreateActor()}
-                                type="submit"> Create Actor</button>
+                                onClick={() => this.submitCreateActorProducer()}
+                                type="submit"> {this.props.msg}</button>
                         </div>
                         <div className="col-8">
                         </div>

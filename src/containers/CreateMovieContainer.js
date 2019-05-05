@@ -4,28 +4,32 @@ import DropdownMultiSelect from '../components/DropdownMultiSelect';
 import DropdownSingleSelect from '../components/DropdownSingleSelect';
 //import Dropzone from '../components/Dropzone';
 import Modal from 'react-responsive-modal';
-import CreateActorContainer from './CreateActorContainer';
+import CreateActorProducerContainer from './CreateActorProducerContainer';
 // import { uploadPoster } from '../utils/fetchDetails';
 import axios from 'axios';
 import * as Constants from '../Constants';
-import Spinner from '../components/SpinnerComponent';
 
 
 export default class CreateMovieContainer extends Component {
   constructor(props) {
     super(props);
     this.state = {
-      poster: {},
-      title: "",
-      actors: [],
-      producer: [],
-      plot: "",
-      yearOfRelease: "",
+      poster: this.props.currMovie.poster || {},
+      title: this.props.currMovie.name || "",
+      actors: this.props.currMovie.actors || [],
+      producer: this.props.currMovie.producer || [],
+      plot: this.props.currMovie.plot || "",
+      yearOfRelease: this.props.currMovie.yearOfRelease || "",
+      _id: this.props.currMovie._id || null,
       showSuccessMsg: false,
       openCreateActor: false,
+      openCreateProdicer: false,
       updatedPosterName: "",
       newActorsList: [],
-      loader: false
+      loader: false,
+      actorOptions: this.props.actorOptions,
+      producerOptions: this.props.producerOptions
+
     }
     this.updateSelectedImage = this.updateSelectedImage.bind(this);
     this.disableSubmit = this.disableSubmit.bind(this);
@@ -33,10 +37,13 @@ export default class CreateMovieContainer extends Component {
     this.updateProducer = this.updateProducer.bind(this);
     this.updatePlot = this.updatePlot.bind(this);
     this.onClickModalCreateActorClose = this.onClickModalCreateActorClose.bind(this);
+    this.onClickModalCreateProducerClose = this.onClickModalCreateProducerClose.bind(this);
     this.openCreateActorModal = this.openCreateActorModal.bind(this);
-    // this.createActorRequest = this.createActorRequest.bind(this);
+    this.openCreateProducerModal = this.openCreateProducerModal.bind(this);
     this.updateInputImage = this.updateInputImage.bind(this);
     this.submitCreateMovie = this.submitCreateMovie.bind(this);
+    this.submitEditedMovie = this.submitEditedMovie.bind(this);
+
   }
 
   disableSubmit() {
@@ -55,7 +62,6 @@ export default class CreateMovieContainer extends Component {
 
   // updateSelectedImage(file) {
   //   this.setState({ poster: file, showSuccessMsg: true });
-
   // }
 
   updateSelectedImage(e) {
@@ -90,7 +96,7 @@ export default class CreateMovieContainer extends Component {
     console.log('producer ::', objProducer.value);
     let producerArr = [];
     producerArr.push(objProducer.value);
-    this.setState({ producer: producerArr})
+    this.setState({ producer: producerArr })
   }
   updatePlot(temp) {
     this.setState({ plot: temp });
@@ -98,39 +104,71 @@ export default class CreateMovieContainer extends Component {
   submitCreateMovie() {
 
     let obj =
-      {
-        "name": this.state.title,
-        "yearOfRelease": parseInt(this.state.yearOfRelease),
-        "poster": `${Constants.URL}/${this.state.updatedPosterName}`,
-        "actors": this.state.actors,
-        "plot": this.state.plot,
-        "producers": this.state.producer
-      }
+    {
+      "name": this.state.title,
+      "yearOfRelease": parseInt(this.state.yearOfRelease),
+      "poster": `${Constants.URL}/${this.state.updatedPosterName}`,
+      "actors": this.state.actors,
+      "plot": this.state.plot,
+      "producers": this.state.producer
+    }
     console.log("input to create movie api ::::" + JSON.stringify(obj));
 
     this.props.submitCreateMovie(obj);
+
+  }
+  submitEditedMovie() {
+
+    let obj =
+    {
+      "name": this.state.title,
+      "yearOfRelease": parseInt(this.state.yearOfRelease),
+      "poster": `${Constants.URL}/${this.state.updatedPosterName}`,
+      "actors": this.state.actors,
+      "plot": this.state.plot,
+      "producers": this.state.producer,
+      "_id": this.state._id
+    }
+    console.log("input to create movie api ::::" + JSON.stringify(obj));
+
+    this.props.submitEditedMovie(obj);
 
   }
 
   openCreateActorModal() {
     this.setState({ openCreateActor: true })
   }
+  openCreateProducerModal() {
+    this.setState({ openCreateProducer: true })
+  }
   onClickModalCreateActorClose() {
     this.setState({ openCreateActor: false })
   }
+  onClickModalCreateProducerClose() {
+    this.setState({ openCreateProducer: false })
+  }
   createActorRequest(temp) {
     console.log("new actor:" + temp);
-    this.setState({ openCreateActor: false })
+    this.setState({ openCreateActor: false, actorOptions: [...this.state.actorOptions, temp] })
+
+  }
+  createProducerRequest(temp) {
+    console.log("new producer:" + temp);
+    this.setState({ openCreateProducer: false, producerOptions: [...this.state.producerOptions, temp] })
 
   }
   updateInputImage(e) {
     this.setState({ poster: e.target.files[0] });
   }
-  render() {
 
+  componentWillReceiveProps(nextProps) {
+    this.setState({ actorOptions: nextProps.actorOptions, producerOptions: nextProps.producerOptions });
+  }
+
+  render() {
     const actorOptions = [], producerOptions = [];
-    this.props.actorOptions.map(e => { actorOptions.push({ key: e.name, value: e.name, text: e.name }); return null; });
-    this.props.producerOptions.map(e => { producerOptions.push({ key: e.name, value: e.name, text: e.name }); return null; });
+    this.state.actorOptions.map(e => { actorOptions.push({ key: e.name, value: e.name, text: e.name }); return null; });
+    this.state.producerOptions.map(e => { producerOptions.push({ key: e.name, value: e.name, text: e.name }); return null; });
 
     return (
       <div>
@@ -141,7 +179,7 @@ export default class CreateMovieContainer extends Component {
               <label >Movie Name</label>
             </div>
             <div className="col-9">
-              <input type="text" id="title" placeholder="enter movie name.."
+              <input type="text" id="title" placeholder="enter movie name.." value={this.state.title}
                 onChange={(e) => this.updateMovieName(e.target.value)} />
             </div>
           </div>
@@ -150,7 +188,7 @@ export default class CreateMovieContainer extends Component {
               <label >year of release</label>
             </div>
             <div className="col-9">
-              <input type="text" name="yor" placeholder="enter movie release year.."
+              <input type="text" name="yor" placeholder="enter movie release year.." value={this.state.yearOfRelease}
                 onChange={(e) => this.updateYearOfRelease(e.target.value)} />
             </div>
           </div>
@@ -160,7 +198,7 @@ export default class CreateMovieContainer extends Component {
             </div>
             <div className="col-6">
               <DropdownMultiSelect actorOptions={actorOptions} updateActors={this.updateActors}
-                defaultValue={this.state.actors} label="Actors" />
+                label="Actors" />
             </div>
             {/* <AddActor/> */}
             <div className="col-3">
@@ -177,7 +215,7 @@ export default class CreateMovieContainer extends Component {
             </div>
             {/* <AddProducer/> */}
             <div className="col-3">
-              <button className='btn buttonSearch borderBlack'>+</button>
+              <button className='btn buttonSearch borderBlack' onClick={this.openCreateProducerModal}>+</button>
             </div>
           </div>
           <div className="row">
@@ -186,6 +224,7 @@ export default class CreateMovieContainer extends Component {
             </div>
             <div className="col-9">
               <textarea id="subject" name="subject" placeholder="Write something about the movie .." style={{ height: "100px" }}
+                value={this.state.plot}
                 onChange={(e) => this.updatePlot(e.target.value)}></textarea>
             </div>
           </div>
@@ -211,19 +250,32 @@ export default class CreateMovieContainer extends Component {
           </div>}
           <div className="row">
             <div className="col-4" >
-              <button className='btn buttonSearch borderBlack' disabled={this.disableSubmit()}
-                onClick={this.submitCreateMovie} type="submit"> Create Movie</button>
+              {this.props.isEdit ?
+
+                <button className='btn buttonSearch borderBlack' disabled={this.disableSubmit()}
+                  onClick={this.submitEditedMovie} type="submit"> Edit Movie</button>
+                : <button className='btn buttonSearch borderBlack' disabled={this.disableSubmit()}
+                  onClick={this.submitCreateMovie} type="submit"> Create Movie</button>}
+
+
             </div>
             <div className="col-8">
             </div>
           </div>
           {this.state.openCreateActor &&
             <Modal open={this.state.openCreateActor || false} onClose={this.onClickModalCreateActorClose} center >
-              <CreateActorContainer createActorRequest={(obj) => this.createActorRequest(obj)} />
+              <CreateActorProducerContainer msg={'Create Actor'} createActorRequest={(obj) => this.createActorRequest(obj)} />
+            </Modal>
+
+          }
+          {this.state.openCreateProducer &&
+            <Modal open={this.state.openCreateProducer || false} onClose={this.onClickModalCreateProducerClose} center >
+              <CreateActorProducerContainer msg={'Create Producer'} createProducerRequest={(obj) => this.createProducerRequest(obj)} />
             </Modal>
 
           }
         </Form>
+        {this.props.children}
       </div>
     )
   }

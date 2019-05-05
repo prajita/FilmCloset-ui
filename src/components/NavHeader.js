@@ -1,12 +1,9 @@
 import React, { Component } from 'react';
 import '../style.css';
 import { Link } from 'react-router-dom';
-import history from '../history';
 
 export default class NavHeader extends Component {
-    constructor(props) {
-        super(props)
-    }
+    
    
     render() {
         return (
