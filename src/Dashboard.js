@@ -11,11 +11,10 @@ import PropTypes from 'prop-types';
 import SpinnerComponent from './components/SpinnerComponent'
 import {
   requestAllMovie, openAddMovieModal, openEditMovieModal,
-  closeAddMovieModal
+  closeAddMovieModal, requestSearchedMovie
 } from './actions';
 
-import { createMovieApi, UpdateAllActorApi ,editMovieApi} from './utils/fetchDetails'
-import { stat } from 'fs';
+import { createMovieApi, UpdateAllActorApi, editMovieApi } from './utils/fetchDetails'
 
 
 class Dashboard extends Component {
@@ -48,7 +47,7 @@ class Dashboard extends Component {
     })
   }
 
-  submitEditedMovie(temp){
+  submitEditedMovie(temp) {
     console.log("edit old movie", temp);
     editMovieApi(temp, (res) => {
       UpdateAllActorApi({ listOfActors: temp.actors, movie: temp.name }, (resp) => {
@@ -80,7 +79,7 @@ class Dashboard extends Component {
           <div className="bck">
             <div className="container">
               <div className="row header-style" >
-                <div className="col-2"><img src={img} className="styleImg" /></div>
+                <div className="col-2"><img src={img} className="styleImg" alt={'not available'} /></div>
                 <div className="col-10" style={{ paddingRight: "15%" }}>
                   <h1>Welcome to your favourite movie site !</h1>
                   <div className="flex-container ">
@@ -90,19 +89,18 @@ class Dashboard extends Component {
               <div className="row header-style" >
                 <div className="col-9">
                   <input type="text"
-                    placeholder="Find by movie/actor" style={{ width: "45%", marginLeft: "32%" ,height: "100%"}}></input>
+                    placeholder="Find by movie name" style={{ width: "45%", marginLeft: "32%", height: "100%" }}
+                    onChange={e => this.props.requestSearchedMovie(e.target.value)}
+                  ></input>
                   <button className="btn buttonSearch colorNav">search</button></div>
                 <div className="col-3" >
                   <span style={{ color: "#FFBF00", paddingTop: "10%", paddingRight: "10%" }}>*find your movie here</span>
                 </div>
               </div>
-
-
             </div>
-
             <br /><br />
 
-            <MovieContainer list={this.props.allMovieList} history={this.props.history} editMovies={this.editMovies.bind(this)} />
+            <MovieContainer list={this.props.searchMovieList} history={this.props.history} editMovies={this.editMovies.bind(this)} />
             {this.props.loader &&
               <SpinnerComponent message="Loading collections..." />
             }
@@ -137,8 +135,10 @@ Dashboard.propTypes = {
   actorsList: PropTypes.array,
   producersList: PropTypes.array,
   requestAllMovie: PropTypes.func,
+  requestSearchedMovie: PropTypes.func,
   loader: PropTypes.bool,
-  allMovieList: PropTypes.array
+  allMovieList: PropTypes.array,
+  searchMovieList: PropTypes.array
 
 };
 
@@ -149,7 +149,8 @@ const mapStateToProps = (state) => {
     actorsList: state.actorsList,
     producersList: state.producersList,
     loader: state.loader,
-    allMovieList: state.allMovieList
+    allMovieList: state.allMovieList,
+    searchMovieList: state.searchMovieList
   };
 }
 const mapDispatchToProps = (dispatch) => {
@@ -159,7 +160,8 @@ const mapDispatchToProps = (dispatch) => {
         openAddMovieModal,
         closeAddMovieModal,
         openEditMovieModal,
-        requestAllMovie
+        requestAllMovie,
+        requestSearchedMovie
 
       }, dispatch
     )

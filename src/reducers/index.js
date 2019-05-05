@@ -1,9 +1,10 @@
 import initialState from './initialState';
 
 import {
-    REQUEST_ALL_MOVIE, OPEN_ADD_MOVIE_MODAL, CLOSE_ADD_MOVIE_MODAL, SET_ACTORS, SET_PRODUCERS,
-    REQUEST_UPLOAD_POSTER, REQUEST_ALL_MOVIE_SUCCESS, UPDATE_LOADER, UPDATE_CREATE_MOVIE_MODAL,UPDATE_EDIT_MOVIE_MODAL,
-    REQUEST_CREATE_MOVIE, CREATE_MOVIE_SUCCESS
+    SET_ACTORS, SET_PRODUCERS,
+    REQUEST_ALL_MOVIE_SUCCESS, UPDATE_LOADER,
+    UPDATE_CREATE_MOVIE_MODAL, UPDATE_EDIT_MOVIE_MODAL,
+    REQUEST_CREATE_MOVIE, CREATE_MOVIE_SUCCESS, SEARCH_MOVIE
 } from '../actions/actionTypes';
 
 const rootReducer = (state = initialState, action) => {
@@ -19,9 +20,16 @@ const rootReducer = (state = initialState, action) => {
             return {
                 ...state,
                 loader: action.loader,
-                allMovieList: action.allMovieList
+                allMovieList: action.allMovieList,
+                searchMovieList: action.allMovieList
             }
-
+        case SEARCH_MOVIE:
+            let searchVal = action.searchVal;
+            let updatedSearchedList = state.allMovieList.filter(e => e.name.toLowerCase().includes(searchVal.toLowerCase()));
+            return {
+                ...state,
+                searchMovieList: updatedSearchedList
+            }
         case UPDATE_CREATE_MOVIE_MODAL:
             return {
                 ...state,

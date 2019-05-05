@@ -1,8 +1,9 @@
 export default {
    addMovieModal: false,
-   editMovieModal:false,
+   editMovieModal: false,
    actorsList: [],
    producersList: [],
    allMovieList: [],
+   searchMovieList: [],
    loader: true
 }

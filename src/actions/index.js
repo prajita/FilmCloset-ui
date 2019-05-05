@@ -1,13 +1,14 @@
 
 import {
-    REQUEST_ALL_MOVIE, OPEN_ADD_MOVIE_MODAL, CLOSE_ADD_MOVIE_MODAL, SET_ACTORS, SET_PRODUCERS,
-    REQUEST_UPLOAD_POSTER, REQUEST_CREATE_MOVIE, REQUEST_ALL_MOVIE_SUCCESS, CREATE_MOVIE_SUCCESS,UPDATE_EDIT_MOVIE_MODAL,
-    UPDATE_CREATE_MOVIE_MODAL, UPDATE_LOADER
+    SET_ACTORS, SET_PRODUCERS,
+    REQUEST_CREATE_MOVIE, REQUEST_ALL_MOVIE_SUCCESS,
+    CREATE_MOVIE_SUCCESS, UPDATE_EDIT_MOVIE_MODAL,
+    UPDATE_CREATE_MOVIE_MODAL, UPDATE_LOADER, SEARCH_MOVIE
 } from './actionTypes';
 import {
-    fetchActorsApi, fetchProducersApi, createMovieApi, createAllActorApi, getAllMovies,UpdateAllActorApi
+    fetchActorsApi, fetchProducersApi, createMovieApi, getAllMovies, UpdateAllActorApi
 } from '../utils/fetchDetails';
-import Promise from 'promise'; // to use Promises
+import Promise from 'promise';
 
 
 
@@ -36,9 +37,20 @@ export const requestAllMovie = () => {
             dispatch({
                 type: REQUEST_ALL_MOVIE_SUCCESS,
                 loader: false,
-                allMovieList: res
+                allMovieList: res,
+                searchMovieList: res
             })
         })
+    }
+}
+
+export const requestSearchedMovie = (searchVal) => {
+    return function (dispatch) {
+        dispatch({
+            type: SEARCH_MOVIE,
+            searchVal: searchVal
+        })
+
     }
 }
 export const openAddMovieModal = () => {
@@ -84,12 +96,12 @@ export const closeAddMovieModal = (movieName) => {
         dispatch({
             type: UPDATE_CREATE_MOVIE_MODAL,
             addMovieModal: false,
-            editMovieModal:false
+            editMovieModal: false
         });
 
     }
 }
-export const createMovie = (movieObj,input) => {
+export const createMovie = (movieObj, input) => {
     return function (dispatch) {
         dispatch({
             type: REQUEST_CREATE_MOVIE,
