@@ -17,7 +17,7 @@ export default class CreateMovieContainer extends Component {
       poster: this.props.currMovie.poster || {},
       title: this.props.currMovie.name || "",
       actors: this.props.currMovie.actors || [],
-      producer: this.props.currMovie.producer || [],
+      producer: this.props.currMovie.producers || [],
       plot: this.props.currMovie.plot || "",
       yearOfRelease: this.props.currMovie.yearOfRelease || "",
       _id: this.props.currMovie._id || null,
@@ -198,7 +198,9 @@ export default class CreateMovieContainer extends Component {
             </div>
             <div className="col-6">
               <DropdownMultiSelect actorOptions={actorOptions} updateActors={this.updateActors}
+                showData={this.state.actors}
                 label="Actors" />
+              {this.props.children}
             </div>
             {/* <AddActor/> */}
             <div className="col-3">
@@ -211,7 +213,8 @@ export default class CreateMovieContainer extends Component {
             </div>
             <div className="col-6">
               <DropdownSingleSelect producerOptions={producerOptions} updateProducer={this.updateProducer}
-                label="Producers" defaultValue={this.state.producer} />
+                label="Producers" showData={this.state.producer} />
+              {this.props.children}
             </div>
             {/* <AddProducer/> */}
             <div className="col-3">
@@ -232,7 +235,7 @@ export default class CreateMovieContainer extends Component {
             {/* <Dropzone updateSelectedImage={this.updateSelectedImage} /> */}
             <div className="col-6">
               <label style={{ paddingLeft: "20px", color: "red" }}>Choose file to upload</label>
-              <input type="file" accept="image/png, image/jpeg" name="myImage" onChange={this.updateInputImage} />
+              <input type="file" accept="image/png, image/jpeg" name="myImage" alt={this.state.poster}  onChange={this.updateInputImage} />
             </div>
             <div className="col-6" style={{ paddingTop: "33px" }}>
               <button className='btn borderGray' onClick={this.updateSelectedImage}>

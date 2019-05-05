@@ -90,7 +90,7 @@ class Dashboard extends Component {
               <div className="row header-style" >
                 <div className="col-9">
                   <input type="text"
-                    placeholder="Find by movie/actor" style={{ width: "45%", marginLeft: "32%" }}></input>
+                    placeholder="Find by movie/actor" style={{ width: "45%", marginLeft: "32%" ,height: "100%"}}></input>
                   <button className="btn buttonSearch colorNav">search</button></div>
                 <div className="col-3" >
                   <span style={{ color: "#FFBF00", paddingTop: "10%", paddingRight: "10%" }}>*find your movie here</span>
